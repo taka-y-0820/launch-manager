@@ -1,0 +1,50 @@
+version: "1.0.0"
+apps:
+  - id: "example-python"
+    name: "Python Script Example"
+    command: "python"
+    args:
+      - "script.py"
+    working_dir: "./examples/python"
+    env:
+      PYTHONUNBUFFERED: "1"
+    dependencies: []
+    auto_restart: false
+    health_check: null
+
+  - id: "example-node"
+    name: "Node.js Server"
+    command: "node"
+    args:
+      - "server.js"
+    working_dir: "./examples/node"
+    env:
+      PORT: "3000"
+    dependencies: []
+    auto_restart: true
+    health_check:
+      interval_seconds: 10
+      timeout_seconds: 5
+      check_type:
+        type: "TcpPort"
+        port: 3000
+
+  - id: "example-batch"
+    name: "Windows Batch Script"
+    command: "cmd.exe"
+    args:
+      - "/c"
+      - "example.bat"
+    working_dir: "./examples/batch"
+    env: {}
+    dependencies: []
+    auto_restart: false
+    health_check: null
+
+workflows:
+  - id: "dev-environment"
+    name: "Development Environment"
+    description: "Start all development services"
+    apps:
+      - "example-python"
+      - "example-node"
