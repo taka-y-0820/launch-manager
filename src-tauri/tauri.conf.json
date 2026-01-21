@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "launch-manager",
-        "width": 800,
-        "height": 600
+        "title": "Launch Manager",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true
       }
     ],
     "security": {

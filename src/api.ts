@@ -1,5 +1,27 @@
 import { invoke } from "@tauri-apps/api/core";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { AppDefinition, ProcessInfo, AppConfig, Workflow } from "./types";
+
+// Script execution types
+export interface ScriptRunRequest {
+  session_id: string;
+  script_content: string;
+  language: string;
+  working_dir?: string;
+  env_vars: Record<string, string>;
+}
+
+export interface ScriptOutput {
+  session_id: string;
+  line: string;
+  is_stderr: boolean;
+}
+
+export interface ScriptComplete {
+  session_id: string;
+  exit_code: number | null;
+  success: boolean;
+}
 
 export const api = {
   // プロセス管理
@@ -62,5 +84,31 @@ export const api = {
 
   async startWorkflow(workflow: Workflow): Promise<void> {
     await invoke("start_workflow", { workflow });
+  },
+
+  // Script execution
+  async runScript(request: ScriptRunRequest): Promise<void> {
+    await invoke("run_script", { request });
+  },
+
+  async stopScript(sessionId: string): Promise<void> {
+    await invoke("stop_script", { sessionId });
+  },
+
+  // Event listeners for script output
+  async onScriptOutput(
+    callback: (output: ScriptOutput) => void
+  ): Promise<UnlistenFn> {
+    return listen<ScriptOutput>("script-output", (event) => {
+      callback(event.payload);
+    });
+  },
+
+  async onScriptComplete(
+    callback: (complete: ScriptComplete) => void
+  ): Promise<UnlistenFn> {
+    return listen<ScriptComplete>("script-complete", (event) => {
+      callback(event.payload);
+    });
   },
 };
